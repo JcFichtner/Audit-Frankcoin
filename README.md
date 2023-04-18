@@ -16,6 +16,7 @@ In the first case, 'tryAvertChallenge()' is a function that is called within a l
 In the second case, the funds transfer is made after the challenge has been resolved and the winning participant has been determined. If this funds transfer is executed before verifying whether the previous function call has completed, an attacker can call back the function and manipulate the function's state before the previous transaction is completed.
 In both cases, if the reentrancy vulnerability is successfully exploited, there can be a loss of funds or manipulation of the function's state, which can be used to obtain funds illicitly.
 ## Proof of Concept
+
 To illustrate how the reentrancy vulnerability can be exploited, i create a malicious contract that takes advantage of the flaw in the 'MintingHub.sol' contract. Consider the following code:
 
 pragma solidity ^0.8.0;

